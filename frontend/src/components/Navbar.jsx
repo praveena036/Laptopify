@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import logo from "../assets/images/logo.png";
 import "../App.css";
 
 function Navbar({ theme, onToggleTheme }) {
@@ -9,7 +10,7 @@ function Navbar({ theme, onToggleTheme }) {
         {/* LOGO */}
         <Link to="/" className="nav-logo">
           <img
-            src="/src/assets/images/logo.png"
+            src={logo}
             alt="Laptopify"
           />
         </Link>
