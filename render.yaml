@@ -32,6 +32,10 @@ services:
         value: twilio
       - key: EMAIL_PROVIDER
         value: resend
+      - key: RESEND_API_KEY
+        sync: false
+      - key: CONTACT_EMAIL_FROM
+        value: "Laptopify <onboarding@resend.dev>"
       - key: CONTACT_EMAIL_TO
         value: cherishbywedknotcraft@gmail.com
 

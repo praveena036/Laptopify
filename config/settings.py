@@ -210,7 +210,8 @@ EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
 EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "true").lower() in {"1", "true", "yes"}
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "cherishbywedknotcraft@gmail.com")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
-CONTACT_EMAIL_FROM = os.getenv("CONTACT_EMAIL_FROM", EMAIL_HOST_USER)
+DEFAULT_CONTACT_EMAIL_FROM = "Laptopify <onboarding@resend.dev>" if DEMO_MODE else EMAIL_HOST_USER
+CONTACT_EMAIL_FROM = os.getenv("CONTACT_EMAIL_FROM", DEFAULT_CONTACT_EMAIL_FROM)
 CONTACT_EMAIL_TO = os.getenv("CONTACT_EMAIL_TO", EMAIL_HOST_USER)
 CORS_ALLOWED_ORIGINS = [
     origin.strip() if "://" in origin else f"https://{origin.strip()}"
