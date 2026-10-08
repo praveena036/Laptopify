@@ -1,0 +1,261 @@
+/* =========================================
+   LAPTOPIFY PROCESS STEPS
+========================================= */
+
+.process-steps {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 28px 0;
+}
+
+/* EACH STEP */
+
+.process-step-wrapper {
+  flex: 1;
+
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+/* STEP */
+
+.process-step {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  text-decoration: none;
+  color: inherit;
+
+  min-width: max-content;
+
+  position: relative;
+  z-index: 2;
+
+  transition:
+    transform 0.35s ease,
+    opacity 0.35s ease;
+}
+
+.process-step:hover {
+  transform: translateY(-3px);
+}
+
+/* CIRCLE */
+
+.step-circle {
+  width: 46px;
+  height: 46px;
+
+  border-radius: 50%;
+
+  border: 1px solid rgba(100, 160, 220, 0.25);
+
+  background:
+    linear-gradient(
+      145deg,
+      #101d35,
+      #091225
+    );
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #6d83a8;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  flex-shrink: 0;
+
+  transition:
+    all 0.4s ease;
+}
+
+/* ACTIVE CIRCLE */
+
+.process-step.active .step-circle {
+  color: #ffffff;
+
+  border-color: #19cfff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #08cfff,
+      #704cff
+    );
+
+  box-shadow:
+    0 0 15px rgba(0, 207, 255, 0.35),
+    0 0 35px rgba(112, 76, 255, 0.2);
+
+  transform: scale(1.08);
+}
+
+/* CONTENT */
+
+.step-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.step-content h4 {
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+.step-content p {
+  margin: 0;
+
+  color: #61799f;
+
+  font-size: 11px;
+
+  white-space: nowrap;
+}
+
+/* ACTIVE TEXT */
+
+.process-step.active .step-content h4 {
+  color: #ffffff;
+}
+
+.process-step.active .step-content p {
+  color: #7e9bc7;
+}
+
+/* LINE */
+
+.step-line {
+  height: 1px;
+
+  flex: 1;
+
+  margin: 0 18px;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(55, 91, 135, 0.55),
+      rgba(55, 91, 135, 0.15)
+    );
+}
+
+/* =========================================
+   KYC / PROCESS SECTION
+========================================= */
+
+.kyc-process {
+  width: 100%;
+
+  padding: 8px 0 30px;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1000px) {
+
+  .process-steps {
+    padding: 25px 10px;
+
+    overflow-x: auto;
+
+    justify-content: flex-start;
+
+    scrollbar-width: none;
+  }
+
+  .process-steps::-webkit-scrollbar {
+    display: none;
+  }
+
+  .process-step-wrapper {
+    flex: 0 0 auto;
+  }
+
+  .step-line {
+    width: 50px;
+    flex: 0 0 50px;
+  }
+}
+
+
+@media (max-width: 700px) {
+
+  .process-steps {
+    padding: 20px 5px;
+  }
+
+  .process-step {
+    gap: 9px;
+  }
+
+  .step-circle {
+    width: 40px;
+    height: 40px;
+
+    font-size: 12px;
+  }
+
+  .step-content h4 {
+    font-size: 12px;
+  }
+
+  .step-content p {
+    font-size: 10px;
+  }
+
+  .step-line {
+    width: 30px;
+    flex: 0 0 30px;
+
+    margin: 0 10px;
+  }
+}
+
+
+@media (max-width: 500px) {
+
+  .process-step {
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .step-content {
+    align-items: center;
+    text-align: center;
+  }
+
+  .step-content h4 {
+    font-size: 11px;
+  }
+
+  .step-content p {
+    display: none;
+  }
+
+  .step-line {
+    width: 20px;
+    flex: 0 0 20px;
+
+    margin: 0 6px;
+  }
+}

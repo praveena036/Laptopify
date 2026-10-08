@@ -1,0 +1,409 @@
+/* ================================
+   LOGIN PAGE
+================================ */
+
+.login-page {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+
+  background:
+    radial-gradient(circle at 15% 20%, rgba(0, 212, 255, 0.12), transparent 30%),
+    radial-gradient(circle at 85% 80%, rgba(124, 58, 237, 0.15), transparent 30%),
+    #020617;
+
+  color: #ffffff;
+}
+
+
+/* ================================
+   CARD
+================================ */
+
+.login-card {
+  width: 100%;
+  max-width: 480px;
+
+  padding: 45px;
+
+  border: 1px solid rgba(96, 165, 250, 0.25);
+  border-radius: 28px;
+
+  background: rgba(15, 23, 42, 0.88);
+
+  box-shadow:
+    0 25px 80px rgba(0, 0, 0, 0.45),
+    0 0 50px rgba(37, 99, 235, 0.08);
+
+  backdrop-filter: blur(20px);
+
+  animation: loginCardIn 0.7s ease forwards;
+}
+
+
+/* ================================
+   BRAND
+================================ */
+
+.login-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 8px 14px;
+
+  margin-bottom: 22px;
+
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  border-radius: 999px;
+
+  background: rgba(14, 165, 233, 0.08);
+
+  color: #22d3ee;
+
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+
+/* ================================
+   TITLE
+================================ */
+
+.login-card h1 {
+  margin: 0 0 10px;
+
+  font-size: clamp(32px, 5vw, 44px);
+  line-height: 1.1;
+
+  font-weight: 800;
+
+  background: linear-gradient(
+    90deg,
+    #ffffff,
+    #67e8f9,
+    #a78bfa
+  );
+
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.login-subtitle {
+  margin: 0 0 32px;
+
+  color: #94a3b8;
+
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+
+/* ================================
+   FORM FIELD
+================================ */
+
+.login-field {
+  margin-bottom: 22px;
+}
+
+.login-field label {
+  display: block;
+
+  margin-bottom: 9px;
+
+  color: #e2e8f0;
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+
+/* ================================
+   MOBILE INPUT
+================================ */
+
+.mobile-input {
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+
+  border: 1px solid #263b5c;
+  border-radius: 14px;
+
+  background: rgba(2, 6, 23, 0.75);
+
+  overflow: hidden;
+
+  transition: 0.25s ease;
+}
+
+.mobile-input:focus-within {
+  border-color: #22d3ee;
+
+  box-shadow:
+    0 0 0 3px rgba(34, 211, 238, 0.1),
+    0 0 25px rgba(34, 211, 238, 0.08);
+}
+
+.mobile-input span {
+  padding: 0 15px;
+
+  color: #67e8f9;
+
+  font-weight: 700;
+
+  border-right: 1px solid #263b5c;
+}
+
+.mobile-input input {
+  flex: 1;
+
+  width: 100%;
+
+  padding: 15px;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  color: #ffffff;
+
+  font-size: 15px;
+}
+
+.mobile-input input::placeholder {
+  color: #64748b;
+}
+
+
+/* ================================
+   OTP INPUT
+================================ */
+
+.otp-input {
+  width: 100%;
+
+  padding: 16px;
+
+  border: 1px solid #263b5c;
+  border-radius: 14px;
+
+  outline: none;
+
+  background: rgba(2, 6, 23, 0.75);
+
+  color: #ffffff;
+
+  font-size: 20px;
+  font-weight: 700;
+
+  letter-spacing: 8px;
+
+  text-align: center;
+
+  transition: 0.25s ease;
+}
+
+.otp-input:focus {
+  border-color: #8b5cf6;
+
+  box-shadow:
+    0 0 0 3px rgba(139, 92, 246, 0.1),
+    0 0 25px rgba(139, 92, 246, 0.08);
+}
+
+
+/* ================================
+   BUTTON
+================================ */
+
+.login-button {
+  position: relative;
+
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  padding: 16px 22px;
+
+  border: none;
+  border-radius: 14px;
+
+  background: linear-gradient(
+    90deg,
+    #06b6d4,
+    #3b82f6,
+    #8b5cf6
+  );
+
+  color: #ffffff;
+
+  font-size: 15px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  overflow: hidden;
+
+  box-shadow:
+    0 12px 30px rgba(59, 130, 246, 0.22);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.login-button:hover:not(:disabled) {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 18px 40px rgba(59, 130, 246, 0.35);
+}
+
+.login-button:active:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.login-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.login-button span {
+  font-size: 18px;
+}
+
+
+/* ================================
+   DEVELOPMENT OTP
+================================ */
+
+.dev-otp {
+  margin: -5px 0 20px;
+
+  padding: 12px 15px;
+
+  border: 1px dashed rgba(250, 204, 21, 0.4);
+  border-radius: 10px;
+
+  background: rgba(250, 204, 21, 0.06);
+
+  color: #facc15;
+
+  font-size: 13px;
+  text-align: center;
+}
+
+.dev-otp strong {
+  color: #ffffff;
+
+  font-size: 16px;
+
+  letter-spacing: 2px;
+}
+
+
+/* ================================
+   MESSAGE
+================================ */
+
+.login-message {
+  margin-top: 18px;
+
+  padding: 13px 15px;
+
+  border-radius: 12px;
+
+  background: rgba(34, 211, 238, 0.07);
+
+  border: 1px solid rgba(34, 211, 238, 0.2);
+
+  color: #67e8f9;
+
+  font-size: 14px;
+  line-height: 1.5;
+
+  text-align: center;
+}
+
+
+/* ================================
+   ANIMATION
+================================ */
+
+@keyframes loginCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(25px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+
+/* ================================
+   TABLET
+================================ */
+
+@media (max-width: 768px) {
+  .login-page {
+    padding: 30px 18px;
+  }
+
+  .login-card {
+    max-width: 500px;
+    padding: 35px 28px;
+  }
+}
+
+
+/* ================================
+   MOBILE
+================================ */
+
+@media (max-width: 480px) {
+  .login-page {
+    padding: 20px 14px;
+  }
+
+  .login-card {
+    padding: 28px 20px;
+
+    border-radius: 22px;
+  }
+
+  .login-card h1 {
+    font-size: 32px;
+  }
+
+  .login-subtitle {
+    font-size: 14px;
+  }
+
+  .mobile-input input {
+    padding: 14px 10px;
+  }
+
+  .mobile-input span {
+    padding: 0 11px;
+  }
+
+  .otp-input {
+    font-size: 18px;
+    letter-spacing: 6px;
+  }
+}

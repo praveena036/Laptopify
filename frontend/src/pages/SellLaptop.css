@@ -1,0 +1,1037 @@
+/* =========================================
+   SELL LAPTOP PAGE
+========================================= */
+
+.sell-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 75% 20%, rgba(76, 72, 255, 0.14), transparent 30%),
+    radial-gradient(circle at 15% 45%, rgba(0, 210, 255, 0.08), transparent 28%),
+    #050914;
+  color: #ffffff;
+  overflow-x: hidden;
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
+
+.sell-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 78px;
+  background: rgba(4, 8, 18, 0.88);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(18px);
+}
+
+.sell-header-inner {
+  width: min(1200px, 92%);
+  height: 100%;
+  margin: auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+}
+
+
+/* LOGO */
+
+.sell-logo {
+  text-decoration: none;
+  color: #ffffff;
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.sell-logo span {
+  color: #19d8ff;
+}
+
+
+/* NAV */
+
+.sell-nav {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.sell-nav a {
+  color: #9ca8c2;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: 0.3s ease;
+}
+
+.sell-nav a:hover {
+  color: #ffffff;
+}
+
+
+/* LOGIN */
+
+.sell-login {
+  text-decoration: none;
+  color: #ffffff;
+
+  padding: 12px 23px;
+
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+
+  font-weight: 700;
+
+  transition: 0.3s ease;
+}
+
+.sell-login:hover {
+  border-color: #26d9ff;
+  box-shadow: 0 0 25px rgba(0, 200, 255, 0.15);
+}
+
+
+/* =========================================
+   INTRO
+========================================= */
+
+.sell-intro {
+  width: min(1200px, 92%);
+  margin: auto;
+  padding: 75px 0 45px;
+}
+
+.sell-intro-content {
+  max-width: 720px;
+}
+
+.sell-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  color: #8ea2c4;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 3px;
+}
+
+.sell-label span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+
+  background: #13d8ff;
+
+  box-shadow:
+    0 0 10px #13d8ff,
+    0 0 25px #13d8ff;
+}
+
+.sell-intro h1 {
+  margin: 22px 0 18px;
+
+  font-size: clamp(42px, 6vw, 76px);
+  line-height: 0.98;
+  letter-spacing: -3px;
+}
+
+.sell-intro h1 strong {
+  background: linear-gradient(
+    90deg,
+    #12d8ff,
+    #7164ff,
+    #b648ff
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.sell-intro p {
+  max-width: 650px;
+
+  color: #8998b7;
+
+  font-size: 17px;
+  line-height: 1.8;
+}
+
+
+/* =========================================
+   PROGRESS
+========================================= */
+
+.sell-progress {
+  width: min(1200px, 92%);
+  margin: 0 auto 50px;
+
+  display: flex;
+  align-items: center;
+}
+
+.progress-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  white-space: nowrap;
+}
+
+.progress-item > span {
+  width: 38px;
+  height: 38px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+
+  background: #0d1526;
+  border: 1px solid #23304a;
+
+  color: #687994;
+
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.progress-item.active > span {
+  color: #ffffff;
+
+  border-color: #12d8ff;
+
+  background: linear-gradient(
+    135deg,
+    #08cfff,
+    #704bff
+  );
+
+  box-shadow:
+    0 0 20px rgba(0, 207, 255, 0.25);
+}
+
+.progress-item strong {
+  display: block;
+  font-size: 13px;
+}
+
+.progress-item small {
+  display: block;
+  margin-top: 3px;
+
+  color: #62708a;
+  font-size: 10px;
+}
+
+.progress-line {
+  flex: 1;
+  height: 1px;
+  min-width: 20px;
+
+  margin: 0 12px;
+
+  background: #1b263d;
+}
+
+
+/* =========================================
+   CONTAINER
+========================================= */
+
+.sell-container {
+  width: min(1200px, 92%);
+  margin: auto;
+  padding-bottom: 100px;
+}
+
+.sell-form-wrapper {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.8fr);
+  gap: 25px;
+  align-items: start;
+}
+
+
+/* =========================================
+   FORM CARD
+========================================= */
+
+.sell-form-card {
+  padding: 35px;
+
+  border-radius: 24px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(18, 28, 50, 0.96),
+      rgba(7, 13, 26, 0.98)
+    );
+
+  border: 1px solid rgba(130, 150, 190, 0.15);
+
+  box-shadow:
+    0 30px 80px rgba(0,0,0,0.3);
+}
+
+
+/* FORM HEADING */
+
+.form-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  padding-bottom: 28px;
+  border-bottom: 1px solid #18243a;
+}
+
+.small-label {
+  color: #16d9ff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.form-heading h2 {
+  margin: 10px 0 8px;
+  font-size: 27px;
+}
+
+.form-heading p {
+  margin: 0;
+  color: #7586a4;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.form-step {
+  color: #64718a;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-align: right;
+}
+
+.form-step strong {
+  display: block;
+
+  margin-top: 5px;
+
+  color: #ffffff;
+  font-size: 26px;
+}
+
+
+/* =========================================
+   FORM SECTION
+========================================= */
+
+.form-section {
+  padding: 28px 0;
+  border-bottom: 1px solid #18243a;
+}
+
+.form-section h3 {
+  margin: 0 0 20px;
+  font-size: 17px;
+}
+
+.section-description {
+  margin-top: -10px;
+  margin-bottom: 20px;
+
+  color: #6e7f9e;
+  font-size: 13px;
+}
+
+
+/* GRID */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input-group label {
+  color: #9ba9c1;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.input-group input,
+.input-group select,
+.input-group textarea {
+  width: 100%;
+
+  border: 1px solid #26344e;
+  outline: none;
+
+  background: #091223;
+  color: #ffffff;
+
+  border-radius: 11px;
+
+  padding: 14px 15px;
+
+  font-family: inherit;
+  font-size: 13px;
+
+  transition: 0.25s ease;
+}
+
+.input-group input::placeholder,
+.input-group textarea::placeholder {
+  color: #45536d;
+}
+
+.input-group input:focus,
+.input-group select:focus,
+.input-group textarea:focus {
+  border-color: #13d8ff;
+
+  box-shadow:
+    0 0 0 3px rgba(19, 216, 255, 0.08),
+    0 0 25px rgba(19, 216, 255, 0.06);
+}
+
+.input-group select {
+  cursor: pointer;
+}
+
+.input-group textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+
+/* PRICE */
+
+.price-input {
+  position: relative;
+}
+
+.price-input span {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  color: #13d8ff;
+  font-weight: 800;
+}
+
+.price-input input {
+  padding-left: 35px;
+}
+
+
+/* =========================================
+   UPLOAD
+========================================= */
+
+.upload-box {
+  min-height: 150px;
+
+  border: 1px dashed #2b3c5b;
+  border-radius: 16px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  cursor: pointer;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(19,216,255,0.05),
+      transparent 65%
+    );
+
+  transition: 0.3s ease;
+}
+
+.upload-box:hover {
+  border-color: #13d8ff;
+  transform: translateY(-2px);
+}
+
+.upload-box input {
+  display: none;
+}
+
+.upload-icon {
+  width: 45px;
+  height: 45px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 12px;
+
+  color: #13d8ff;
+
+  background: rgba(19,216,255,0.08);
+
+  font-size: 22px;
+
+  margin-bottom: 10px;
+}
+
+.upload-box strong {
+  font-size: 13px;
+}
+
+.upload-box small {
+  margin-top: 5px;
+  color: #62718c;
+}
+
+
+/* =========================================
+   ACTIONS
+========================================= */
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+  gap: 12px;
+
+  padding-top: 28px;
+}
+
+.cancel-button,
+.continue-button {
+  padding: 14px 22px;
+
+  border-radius: 11px;
+
+  font-size: 13px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  text-decoration: none;
+
+  transition: 0.3s ease;
+}
+
+.cancel-button {
+  color: #9aa8c0;
+
+  border: 1px solid #26334c;
+  background: transparent;
+}
+
+.cancel-button:hover {
+  color: #ffffff;
+  border-color: #4a5d7d;
+}
+
+.continue-button {
+  border: none;
+
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      90deg,
+      #0bc9ff,
+      #734dff
+    );
+
+  box-shadow:
+    0 12px 30px rgba(74, 85, 255, 0.25);
+}
+
+.continue-button span {
+  margin-left: 10px;
+  font-size: 17px;
+}
+
+.continue-button:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 18px 40px rgba(74, 85, 255, 0.35);
+}
+
+
+/* =========================================
+   LAPTOP PREVIEW
+========================================= */
+
+.laptop-preview {
+  position: sticky;
+  top: 105px;
+
+  min-height: 620px;
+
+  padding: 35px;
+
+  overflow: hidden;
+
+  border-radius: 25px;
+
+  background:
+    radial-gradient(
+      circle at 50% 35%,
+      rgba(74, 74, 255, 0.22),
+      transparent 40%
+    ),
+    #080f20;
+
+  border: 1px solid #1c2a44;
+
+  box-shadow:
+    inset 0 0 80px rgba(50,80,255,0.05);
+}
+
+.preview-glow {
+  position: absolute;
+
+  width: 250px;
+  height: 250px;
+
+  left: 50%;
+  top: 25%;
+
+  transform: translate(-50%, -50%);
+
+  background: #4055ff;
+
+  filter: blur(100px);
+
+  opacity: 0.16;
+
+  pointer-events: none;
+}
+
+.preview-label {
+  position: relative;
+  z-index: 2;
+
+  color: #13d8ff;
+
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 3px;
+}
+
+
+/* LAPTOP */
+
+.preview-device {
+  position: relative;
+
+  width: 100%;
+
+  margin: 80px auto 55px;
+
+  animation: laptopFloat 5s ease-in-out infinite;
+}
+
+@keyframes laptopFloat {
+
+  0%,
+  100% {
+    transform: translateY(0) rotateX(0deg);
+  }
+
+  50% {
+    transform: translateY(-12px) rotateX(2deg);
+  }
+}
+
+.device-screen {
+  position: relative;
+
+  width: 88%;
+  height: 190px;
+
+  margin: auto;
+
+  border: 6px solid #293751;
+  border-bottom: 10px solid #202c44;
+
+  border-radius: 15px 15px 7px 7px;
+
+  background:
+    radial-gradient(
+      circle at 50% 45%,
+      rgba(91, 76, 255, 0.5),
+      transparent 35%
+    ),
+    linear-gradient(
+      145deg,
+      #111d35,
+      #050914
+    );
+
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.5),
+    inset 0 0 35px rgba(80,90,255,0.1);
+}
+
+.screen-logo {
+  margin: 35px 0 20px;
+
+  text-align: center;
+
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 3px;
+}
+
+.screen-logo span {
+  color: #12d8ff;
+}
+
+.screen-line {
+  width: 45%;
+  height: 6px;
+
+  margin: 9px auto;
+
+  border-radius: 20px;
+
+  background: linear-gradient(
+    90deg,
+    #12d8ff,
+    #744fff
+  );
+
+  opacity: 0.45;
+}
+
+.screen-line.short {
+  width: 30%;
+}
+
+.device-base {
+  width: 105%;
+  height: 18px;
+
+  margin: 0 auto;
+
+  border-radius: 0 0 20px 20px;
+
+  background: linear-gradient(
+    180deg,
+    #45536c,
+    #131d30
+  );
+
+  box-shadow:
+    0 15px 20px rgba(0,0,0,0.5);
+}
+
+.device-keyboard {
+  width: 45%;
+  height: 4px;
+
+  margin: 4px auto;
+
+  border-radius: 10px;
+
+  background: #68748a;
+  opacity: 0.4;
+}
+
+
+/* PREVIEW DETAILS */
+
+.preview-details {
+  position: relative;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 8px;
+
+  padding: 12px;
+
+  border-radius: 14px;
+
+  background: rgba(255,255,255,0.035);
+
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.preview-details div {
+  min-width: 0;
+}
+
+.preview-details small {
+  display: block;
+
+  color: #56647d;
+
+  font-size: 8px;
+  letter-spacing: 1px;
+}
+
+.preview-details strong {
+  display: block;
+
+  margin-top: 5px;
+
+  color: #ffffff;
+
+  font-size: 11px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+/* SPECS */
+
+.preview-specs {
+  margin-top: 15px;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 8px;
+}
+
+.preview-specs div {
+  padding: 12px;
+
+  border-radius: 10px;
+
+  background: rgba(255,255,255,0.025);
+
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.preview-specs span {
+  display: block;
+
+  color: #56647d;
+
+  font-size: 8px;
+  letter-spacing: 1px;
+}
+
+.preview-specs strong {
+  display: block;
+
+  margin-top: 5px;
+
+  color: #aebbd0;
+
+  font-size: 10px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+/* NOTE */
+
+.preview-note {
+  display: flex;
+  gap: 10px;
+
+  margin-top: 20px;
+
+  padding: 13px;
+
+  border-radius: 12px;
+
+  background: rgba(19,216,255,0.035);
+
+  border: 1px solid rgba(19,216,255,0.08);
+}
+
+.preview-note span {
+  color: #13d8ff;
+}
+
+.preview-note p {
+  margin: 0;
+
+  color: #667792;
+
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+
+/* =========================================
+   FOOTER
+========================================= */
+
+.sell-footer {
+  width: min(1200px, 92%);
+  margin: auto;
+
+  padding: 30px 0;
+
+  border-top: 1px solid #172238;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  color: #56647c;
+  font-size: 12px;
+}
+
+.sell-footer strong {
+  color: #ffffff;
+  font-size: 16px;
+  letter-spacing: 2px;
+}
+
+.sell-footer strong span {
+  color: #13d8ff;
+}
+
+.sell-footer p {
+  margin: 6px 0 0;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1000px) {
+
+  .sell-nav {
+    gap: 15px;
+  }
+
+  .sell-form-wrapper {
+    grid-template-columns: 1fr;
+  }
+
+  .laptop-preview {
+    position: relative;
+    top: 0;
+  }
+
+}
+
+
+@media (max-width: 800px) {
+
+  .sell-nav {
+    display: none;
+  }
+
+  .sell-progress {
+    overflow-x: auto;
+    padding-bottom: 10px;
+  }
+
+  .progress-item {
+    flex-shrink: 0;
+  }
+
+  .progress-line {
+    min-width: 30px;
+  }
+
+}
+
+
+@media (max-width: 600px) {
+
+  .sell-header {
+    height: 68px;
+  }
+
+  .sell-header-inner {
+    width: 90%;
+  }
+
+  .sell-intro {
+    padding-top: 50px;
+  }
+
+  .sell-intro h1 {
+    font-size: 44px;
+    letter-spacing: -2px;
+  }
+
+  .sell-intro p {
+    font-size: 14px;
+  }
+
+  .sell-form-card {
+    padding: 22px;
+    border-radius: 18px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-heading {
+    gap: 15px;
+  }
+
+  .form-heading h2 {
+    font-size: 22px;
+  }
+
+  .form-step {
+    display: none;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .cancel-button,
+  .continue-button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .laptop-preview {
+    padding: 25px;
+    min-height: auto;
+  }
+
+  .preview-device {
+    margin: 55px auto 40px;
+  }
+
+  .device-screen {
+    height: 150px;
+  }
+
+  .sell-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+}
