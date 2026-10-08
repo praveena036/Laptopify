@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 import "./Home.css";
 
-import heroImage from "../assets/images/neon-laptop.png";
+import heroImage from "../assets/images/Neon-Laptop.png";
 
 import dell from "../assets/images/Dell-1.png";
 import hp from "../assets/images/HP-1.png";
