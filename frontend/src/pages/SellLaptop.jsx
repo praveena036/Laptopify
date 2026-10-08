@@ -106,10 +106,15 @@ function SellLaptop() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [demoMode, setDemoMode] = useState(false);
 
   const requestId = localStorage.getItem("laptop_request_id");
   const currentStatus = useMemo(() => workflow?.laptop_request?.status || "draft", [workflow]);
   const furthestStep = maxReachableStep(workflow);
+
+  useEffect(() => {
+    api.get("/api/health/").then(({ data }) => setDemoMode(Boolean(data.demo_mode))).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (!requestId || !localStorage.getItem("access_token")) return;
@@ -358,6 +363,7 @@ function SellLaptop() {
         <div className="sell-trust-points" aria-label="Laptopify process benefits">
           <span>Secure KYC</span><span>Clear condition review</span><span>No-obligation estimate</span>
         </div>
+        {demoMode && <div className="demo-mode-notice" role="note"><strong>Free demo environment:</strong> Render may remove uploaded KYC files when the service restarts, and the free database expires after its trial period. Do not upload real identity documents. SMS OTP and contact email need provider credentials.</div>}
       </section>
 
       <section className="sell-progress" aria-label="Laptopify buyback steps">

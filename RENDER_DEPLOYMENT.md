@@ -1,29 +1,19 @@
-# Deploy Laptopify on Render
+# Laptopify free demo backend on Render
 
-The root `render.yaml` defines the Django API and persistent Render Postgres database. The React/Vite frontend is deployed separately on Vercel; see [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md). Create a Blueprint from this repository in Render and sync it. The API and Postgres plans are paid plans because production migrations run in the API's pre-deploy command. Review the plan and billing shown by Render before creating resources.
+The root `render.yaml` creates the Django API and a free Render Postgres database. The React frontend stays on Vercel. This setup is for a temporary demo, not a production buyback service: Render's free web service sleeps when idle, its filesystem is temporary, and its free Postgres database has a limited lifetime. Do not collect real identity documents or rely on the demo to retain requests.
 
-## Required production credentials
+## Create the backend
 
-Set the Blueprint's `sync: false` variables in the Render Dashboard before the first successful deploy:
+1. Push this repository to GitHub.
+2. In Render, choose **New → Blueprint**, connect `praveena036/Laptopify`, and select the `main` branch. Do not create a separate Django web service from the New Web Service form; the Blueprint reads the root `render.yaml` and creates the API and database on the free plans.
+3. When Render asks for environment values, set `CORS_ALLOWED_ORIGINS` to the exact Vercel origin, for example `https://laptopify-vert.vercel.app` (no trailing slash). Set `DJANGO_ADMIN_USERNAME`, `DJANGO_ADMIN_EMAIL`, and a unique `DJANGO_ADMIN_PASSWORD` of at least 12 characters. Keep the password private. The startup command creates the first admin once so you can review KYC at `/admin/` without Render Shell access.
+4. Confirm the resource plan says **Free** before creating/syncing. Wait for the API to deploy, then open `https://laptopify-api.onrender.com/api/health/`; it should return `{"status":"ok","demo_mode":true}`.
+5. In Vercel, set `VITE_API_URL` to the actual Render API origin and redeploy the frontend.
 
-- `CORS_ALLOWED_ORIGINS`: the exact production Vercel origin, such as `https://laptopify.vercel.app` (no trailing slash). Add any custom/preview origins you will use, separated by commas.
-- `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_VERIFY_SERVICE_SID`: Twilio Verify credentials. The Verify service must be enabled for SMS and configured for the countries you support. OTP login has no production fallback that reveals a code in the browser.
-- `RESEND_API_KEY`: Resend API key.
-- `CONTACT_EMAIL_FROM`: sender address on a domain verified in Resend. The recipient is preconfigured as `cherishbywedknotcraft@gmail.com` in the Blueprint.
-- `AWS_STORAGE_BUCKET_NAME`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`: a private S3-compatible bucket and restricted IAM credentials for KYC document persistence. Set the bucket's region in `AWS_S3_REGION_NAME` if it is not `ap-south-1`.
+## Optional integrations
 
-Keep these credentials in Render's backend environment only. Do not add them to Vite variables or commit them. KYC documents are private and use signed object URLs. Configure lifecycle/retention for identity documents according to your privacy and legal requirements.
+- **SMS OTP:** add `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, and `TWILIO_VERIFY_SERVICE_SID` to the Render API environment. A Twilio trial may restrict recipients to verified numbers and has trial limits. Without these values, OTP sending correctly reports that SMS is not configured; it does not reveal or fabricate a code.
+- **Contact email:** add `RESEND_API_KEY` and `CONTACT_EMAIL_FROM` to Render. The sender must be verified in Resend. The recipient is set to `cherishbywedknotcraft@gmail.com`.
+- **Persistent private KYC files:** for a real production deployment, configure a private S3-compatible bucket and `AWS_STORAGE_BUCKET_NAME`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_S3_REGION_NAME`. Render Free's filesystem does not persist uploads.
 
-## First deployment
-
-1. Push the repository to GitHub.
-2. Create the Vercel project from the GitHub repository with `frontend` as its root directory. Set `VITE_API_URL` to `https://laptopify-api.onrender.com` (or the actual API hostname) before the first production build.
-3. Create the private S3 bucket and verify the Twilio and Resend accounts/sender domain.
-4. In Render, create a Blueprint from the repository. Enter all `sync: false` values when prompted, including the Vercel production origin for `CORS_ALLOWED_ORIGINS`, before the first deploy. Set `CONTACT_EMAIL_FROM` to the verified Resend sender. Review the service hostnames and paid plans before confirming resource creation.
-5. Sync/deploy the Render Blueprint. It runs Django migrations before starting the API. Confirm `/api/health/` returns `{"status":"ok"}` on the API host, then deploy the Vercel frontend.
-6. Create an admin account from the API service Shell with `python manage.py createsuperuser`. Admin staff must review KYC documents and set their status to Verified before sellers can submit inspection details.
-7. Verify a real SMS, contact email, KYC upload, and end-to-end buyback flow using provider-approved test numbers and data.
-
-For a custom domain, update `DJANGO_ALLOWED_HOSTS` to include the API host/custom domain and include the exact frontend origin in `CORS_ALLOWED_ORIGINS`; update the frontend's `VITE_API_URL` to the API origin and redeploy it. Django deliberately fails to start in production when the persistent database URL or private KYC storage bucket is missing.
-
-Local development continues to use the root `.env`, SQLite, local media, and the development OTP provider. To use a real SMS provider locally, add the Twilio Verify variables to the backend `.env`; the production frontend never receives provider credentials.
+The database can expire and be deleted on the free plan; back up anything you need. For production, turn off `DEMO_MODE`, use a persistent paid database and private object storage, and add the real SMS and email providers. Keep all provider credentials in Render, never in Vite or Git.

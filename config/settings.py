@@ -28,6 +28,7 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "local-development-only-change-befor
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DJANGO_DEBUG", "true").lower() in {"1", "true", "yes"}
+DEMO_MODE = os.getenv("DEMO_MODE", "false").lower() in {"1", "true", "yes"}
 
 if not DEBUG and SECRET_KEY == "local-development-only-change-before-deploy":
     raise ImproperlyConfigured("Set DJANGO_SECRET_KEY to a private random value in production.")
@@ -124,7 +125,7 @@ else:
             }
         }
 
-if not DEBUG and not os.getenv("AWS_STORAGE_BUCKET_NAME"):
+if not DEBUG and not DEMO_MODE and not os.getenv("AWS_STORAGE_BUCKET_NAME"):
     raise ImproperlyConfigured("Set AWS_STORAGE_BUCKET_NAME to persist uploaded KYC documents in production.")
 
 # Render terminates TLS at its proxy. These settings keep Django's HTTPS

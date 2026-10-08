@@ -103,6 +103,8 @@
 .workflow-alert { margin-top: 17px; padding: 13px 15px; border: 1px solid transparent; border-radius: 11px; font-size: 12px; line-height: 1.6; }
 .workflow-alert.error { border-color: rgba(255, 115, 126, .24); background: rgba(150, 34, 50, .11); color: #ffb2b8; }
 .workflow-alert.success { border-color: rgba(34, 197, 150, .2); background: rgba(18, 145, 112, .08); color: #91e6c5; }
+.demo-mode-notice { max-width: 960px; margin: 18px auto 0; padding: 14px 16px; border: 1px solid rgba(255, 190, 80, .35); border-radius: 12px; background: rgba(166, 105, 20, .12); color: #f4d59a; font-size: 13px; line-height: 1.65; }
+.demo-mode-notice strong { color: #ffe3a5; }
 
 .sell-sidecard { position: sticky; top: 24px; overflow: hidden; padding: 29px; transition: transform .3s ease, border-color .3s ease; }
 .sell-sidecard:hover { transform: translateY(-3px); border-color: rgba(35, 210, 255, .29); }
