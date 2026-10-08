@@ -33,11 +33,12 @@ class SellerInspectionView(APIView):
         laptop_request = get_object_or_404(
             LaptopRequest, id=laptop_request_id, seller=request.user
         )
-        if not KYCDocument.objects.filter(
+        kyc = KYCDocument.objects.filter(
             laptop_request=laptop_request, seller=request.user
-        ).exists():
+        ).order_by("-created_at").first()
+        if not kyc or kyc.status != "verified":
             return Response(
-                {"message": "Submit your identity and address documents before the inspection."},
+                {"message": "Laptopify must verify your KYC documents before you can submit the inspection."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         if Purchase.objects.filter(laptop_request=laptop_request).exists():

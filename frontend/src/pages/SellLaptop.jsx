@@ -22,6 +22,7 @@ const conditions = [
   ["needs_repair", "Needs repair"],
 ];
 const inspectionConditions = ["excellent", "good", "fair", "poor"];
+const conditionScores = { excellent: 4, good: 3, fair: 2, poor: 1 };
 
 const freshLaptop = () => ({
   brand: "", model: "", processor: "", ram: "", storage: "",
@@ -29,11 +30,18 @@ const freshLaptop = () => ({
   expectedPrice: "", condition: "", reason: "",
 });
 const freshInspection = () => ({
-  physical_condition: "good", screen_condition: "good", keyboard_condition: "good",
-  battery_condition: "good", charger_condition: "good", camera_condition: "good",
-  speaker_condition: "good", ports_condition: "good", overall_condition: "good",
-  processor_verified: false, ram_verified: false, storage_verified: false, remarks: "",
+  physical_condition: "", screen_condition: "", keyboard_condition: "",
+  battery_condition: "", charger_condition: "", camera_condition: "",
+  speaker_condition: "", ports_condition: "", overall_condition: "",
+  processor_verified: null, ram_verified: null, storage_verified: null, remarks: "",
 });
+
+function calculateOverallCondition(details) {
+  const values = componentChecks.map(([field]) => details[field]);
+  if (values.some((value) => !conditionScores[value])) return "";
+  const score = values.reduce((sum, value) => sum + conditionScores[value], 0) / values.length;
+  return score >= 3.6 ? "excellent" : score >= 2.7 ? "good" : score >= 1.8 ? "fair" : "poor";
+}
 
 function getErrorMessage(error) {
   const data = error.response?.data;
@@ -61,20 +69,36 @@ function laptopFormFromRequest(item) {
   };
 }
 
+function sameLaptopDetails(saved, form) {
+  const normalizedSaved = laptopFormFromRequest(saved);
+  const numericFields = new Set(["purchaseYear", "originalPrice", "expectedPrice"]);
+  return Object.keys(form).every((key) => numericFields.has(key)
+    ? Number(normalizedSaved[key]) === Number(form[key])
+    : String(normalizedSaved[key]).trim() === String(form[key]).trim());
+}
+
 function stepFromWorkflow(workflow) {
-  if (workflow.purchase) return 5;
+  if (workflow.purchase || (workflow.offer_decision && workflow.offer_decision !== "pending")) return 5;
   if (workflow.valuation) return 4;
   if (workflow.inspection) return 4;
-  if (workflow.kyc) return 3;
+  if (workflow.kyc?.status === "verified") return 3;
   if (workflow.laptop_request) return 2;
   return 1;
 }
 
+function maxReachableStep(workflow) {
+  if (!workflow?.laptop_request) return 1;
+  if (workflow.offer_decision && workflow.offer_decision !== "pending") return 5;
+  if (workflow.valuation) return 5;
+  if (workflow.inspection) return 4;
+  if (workflow.kyc?.status === "verified") return 3;
+  return 2;
+}
+
 function SellLaptop() {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const queryStep = stepKeys.indexOf(searchParams.get("step"));
-  const [step, setStep] = useState(queryStep >= 0 ? queryStep + 1 : 1);
+  const [, setSearchParams] = useSearchParams();
+  const [step, setStep] = useState(1);
   const [laptop, setLaptop] = useState(freshLaptop);
   const [inspection, setInspection] = useState(freshInspection);
   const [workflow, setWorkflow] = useState(null);
@@ -85,6 +109,7 @@ function SellLaptop() {
 
   const requestId = localStorage.getItem("laptop_request_id");
   const currentStatus = useMemo(() => workflow?.laptop_request?.status || "draft", [workflow]);
+  const furthestStep = maxReachableStep(workflow);
 
   useEffect(() => {
     if (!requestId || !localStorage.getItem("access_token")) return;
@@ -92,6 +117,10 @@ function SellLaptop() {
       .then(({ data }) => {
         setWorkflow(data);
         setLaptop(laptopFormFromRequest(data.laptop_request));
+        if (data.kyc) {
+          setKyc((previous) => ({ ...previous, fullName: data.kyc.full_name || "", address: data.kyc.address || "" }));
+        }
+        if (data.inspection) setInspection((previous) => ({ ...previous, ...data.inspection }));
         setStep(stepFromWorkflow(data));
         setSearchParams({ step: stepKeys[stepFromWorkflow(data) - 1] }, { replace: true });
       })
@@ -120,6 +149,7 @@ function SellLaptop() {
   }, [step]);
 
   const moveTo = (nextStep) => {
+    if (nextStep < 1 || nextStep > 5) return;
     setError("");
     setNotice("");
     setStep(nextStep);
@@ -141,7 +171,7 @@ function SellLaptop() {
     setLoading(true);
     setError("");
     try {
-      const { data } = await api.post("/api/laptop-requests/", {
+      const payload = {
         brand: laptop.brand,
         model: laptop.model,
         processor: laptop.processor,
@@ -153,9 +183,20 @@ function SellLaptop() {
         expected_price: Number(laptop.expectedPrice),
         condition: laptop.condition,
         reason_for_selling: laptop.reason,
-      }, { requiresAuth: true });
+      };
+      const existingRequest = workflow?.laptop_request;
+      const changedDetails = existingRequest && !sameLaptopDetails(existingRequest, laptop);
+      const { data } = existingRequest
+        ? await api.patch(`/api/laptop-requests/${existingRequest.id}/`, payload, { requiresAuth: true })
+        : await api.post("/api/laptop-requests/", payload, { requiresAuth: true });
       localStorage.setItem("laptop_request_id", data.id);
-      const nextWorkflow = { laptop_request: data, kyc: null, inspection: null, valuation: null, purchase: null };
+      const nextWorkflow = {
+        ...(workflow || {}),
+        laptop_request: data,
+        kyc: workflow?.kyc || null,
+        inspection: changedDetails ? null : workflow?.inspection || null,
+        valuation: changedDetails ? null : workflow?.valuation || null,
+      };
       setWorkflow(nextWorkflow);
       moveTo(2);
     } catch (requestError) {
@@ -190,11 +231,31 @@ function SellLaptop() {
       });
       setWorkflow((previous) => ({
         ...previous,
-        kyc: { status: data.status, full_name: kyc.fullName.trim() },
+        kyc: { status: data.status, full_name: kyc.fullName.trim(), address: kyc.address.trim() },
         laptop_request: { ...previous.laptop_request, status: data.request_status },
       }));
-      setNotice("Your identity documents are securely submitted for Laptopify verification.");
-      moveTo(3);
+      setNotice("Your identity documents are securely submitted. Laptopify will review them before inspection.");
+    } catch (requestError) {
+      setError(getErrorMessage(requestError));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const checkKycStatus = async () => {
+    const id = localStorage.getItem("laptop_request_id");
+    if (!id) return;
+    setLoading(true);
+    setError("");
+    try {
+      const { data } = await api.get(`/api/laptop-requests/${id}/workflow/`, { requiresAuth: true });
+      setWorkflow(data);
+      if (data.kyc?.status === "verified") {
+        setNotice("Your KYC is verified. You can continue to the inspection checklist.");
+        moveTo(3);
+      } else {
+        setNotice("Your KYC is still under review. You can continue once Laptopify verifies your documents.");
+      }
     } catch (requestError) {
       setError(getErrorMessage(requestError));
     } finally {
@@ -209,7 +270,7 @@ function SellLaptop() {
     try {
       const { data } = await api.post(
         `/api/inspections/${localStorage.getItem("laptop_request_id")}/`,
-        inspection,
+        { ...inspection, overall_condition: calculateOverallCondition(inspection) },
         { requiresAuth: true },
       );
       setWorkflow((previous) => ({
@@ -238,6 +299,7 @@ function SellLaptop() {
       setWorkflow((previous) => ({
         ...previous,
         purchase: data,
+        offer_decision: "accepted",
         laptop_request: { ...previous.laptop_request, status: data.status },
       }));
       moveTo(5);
@@ -248,14 +310,42 @@ function SellLaptop() {
     }
   };
 
+  const rejectOffer = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const { data } = await api.post(
+        `/api/purchases/${localStorage.getItem("laptop_request_id")}/reject/`,
+        {},
+        { requiresAuth: true },
+      );
+      setWorkflow((previous) => ({
+        ...previous,
+        offer_decision: data.decision,
+        laptop_request: { ...previous.laptop_request, status: data.status },
+      }));
+      setNotice(data.message);
+    } catch (requestError) {
+      setError(getErrorMessage(requestError));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const updateInspection = (event) => {
     const { name, value, type, checked } = event.target;
-    setInspection((previous) => ({ ...previous, [name]: type === "checkbox" ? checked : value }));
+    const nextValue = type === "checkbox" ? checked
+      : name.endsWith("_verified") ? (value === "" ? null : value === "true")
+        : value;
+    setInspection((previous) => {
+      const next = { ...previous, [name]: nextValue };
+      next.overall_condition = calculateOverallCondition(next);
+      return next;
+    });
   };
 
   const estimate = workflow?.valuation?.estimated_value;
   const offerAmount = workflow?.purchase?.amount || estimate;
-  const shareUrl = encodeURIComponent(window.location.href);
 
   return (
     <main className="sell-page">
@@ -276,10 +366,10 @@ function SellLaptop() {
           const isComplete = itemStep < step;
           const isActive = itemStep === step;
           return (
-            <div className={`progress-item ${isActive ? "active" : ""} ${isComplete ? "complete" : ""}`} key={label} aria-current={isActive ? "step" : undefined}>
+            <button type="button" className={`progress-item ${isActive ? "active" : ""} ${isComplete ? "complete" : ""}`} key={label} aria-current={isActive ? "step" : undefined} disabled={itemStep > furthestStep || loading} onClick={() => moveTo(itemStep)}>
               <span>{String(itemStep).padStart(2, "0")}</span>
               <div><strong>{label}</strong><small>{["Device information", "Identity and address", "Condition checklist", "Estimated buyback", "Offer acceptance"][index]}</small></div>
-            </div>
+            </button>
           );
         })}
       </section>
@@ -330,9 +420,17 @@ function SellLaptop() {
             </form>
           )}
 
-          {step === 2 && (
+          {step === 2 && (workflow?.kyc && workflow.kyc.status !== "rejected" ? (
+            <div className="workflow-form">
+              <div className="workflow-section-title"><span>02</span><div><h3>KYC documents received</h3><p>Your identity and address documents are with Laptopify for review.</p></div></div>
+              <div className="workflow-alert success" role="status">Verification status: {(workflow.kyc.status || "under_verification").replaceAll("_", " ")}</div>
+              <div className="purchase-summary"><div><span>Seller name</span><strong>{workflow.kyc.full_name || kyc.fullName}</strong></div><div><span>Address</span><strong>{workflow.kyc.address || kyc.address}</strong></div></div>
+              <WorkflowActions loading={loading} label={workflow.kyc.status === "verified" ? "Continue to inspection" : "Check verification status"} onNext={checkKycStatus} back={() => moveTo(1)} />
+            </div>
+          ) : (
             <form className="workflow-form" onSubmit={submitKyc}>
               <div className="workflow-section-title"><span>02</span><div><h3>Seller information</h3><p>These details are used only to review this Laptopify buyback request.</p></div></div>
+              {workflow?.kyc?.status === "rejected" && <div className="workflow-alert error" role="alert">Your previous KYC submission needs an update. {workflow.kyc.admin_remarks || "Please review your details and upload clear identity and address documents again."}</div>}
               <div className="workflow-grid">
                 <label className="workflow-full">Full legal name<input value={kyc.fullName} onChange={(event) => setKyc({ ...kyc, fullName: event.target.value })} autoComplete="name" maxLength={150} required /></label>
                 <label className="workflow-full">Current address<textarea value={kyc.address} onChange={(event) => setKyc({ ...kyc, address: event.target.value })} autoComplete="street-address" rows="3" maxLength={2000} required /></label>
@@ -342,18 +440,19 @@ function SellLaptop() {
               <div className="privacy-note"><span>🔒</span><p>Identity documents are sent directly to Laptopify for verification. Your identity and address documents are not included in the public workflow status.</p></div>
               <WorkflowActions loading={loading} label="Submit KYC and continue" back={() => moveTo(1)} />
             </form>
-          )}
+          ))}
 
           {step === 3 && (
             <form className="workflow-form" onSubmit={submitInspection}>
               <div className="workflow-section-title"><span>03</span><div><h3>Device condition checklist</h3><p>Choose the condition that best describes each part. Laptopify will confirm it during the physical inspection.</p></div></div>
               <div className="inspection-grid">
                 {componentChecks.map(([name, label]) => (
-                  <label key={name}>{label}<select name={name} value={inspection[name]} onChange={updateInspection} required>{inspectionConditions.map((value) => <option key={value} value={value}>{value[0].toUpperCase() + value.slice(1)}</option>)}</select></label>
+                  <label key={name}>{label}<select name={name} value={inspection[name]} onChange={updateInspection} required><option value="">Choose condition</option>{inspectionConditions.map((value) => <option key={value} value={value}>{value[0].toUpperCase() + value.slice(1)}</option>)}</select></label>
                 ))}
               </div>
+              <div className="inspection-condition-summary" role="status"><span>Calculated overall condition</span><strong>{inspection.overall_condition ? inspection.overall_condition[0].toUpperCase() + inspection.overall_condition.slice(1) : "Complete all condition checks"}</strong></div>
               <fieldset className="verification-checks"><legend>Confirm the specifications match your laptop</legend>
-                {[["processor_verified", "Processor"], ["ram_verified", "RAM"], ["storage_verified", "Storage"]].map(([name, label]) => <label key={name}><input type="checkbox" name={name} checked={inspection[name]} onChange={updateInspection} />{label} matches the details I entered</label>)}
+                {[["processor_verified", "Processor"], ["ram_verified", "RAM"], ["storage_verified", "Storage"]].map(([name, label]) => <label key={name}>{label} matches the details I entered<select name={name} value={inspection[name] === null ? "" : String(inspection[name])} onChange={updateInspection} required><option value="">Choose one</option><option value="true">Yes, it matches</option><option value="false">No / not confirmed</option></select></label>)}
               </fieldset>
               <label className="workflow-full">Notes for the Laptopify inspector<textarea name="remarks" value={inspection.remarks} onChange={updateInspection} maxLength={2000} rows="3" placeholder="Mention visible damage, battery issues or included accessories." /></label>
               <WorkflowActions loading={loading} label="Submit condition and calculate estimate" back={() => moveTo(2)} />
@@ -374,16 +473,16 @@ function SellLaptop() {
                 <div><span>Your condition report</span><strong>{workflow?.inspection?.overall_condition || "Submitted"}</strong></div>
                 <div><span>Review status</span><strong className="status-pill">{workflow?.valuation?.status === "approved" ? "Laptopify approved" : "Awaiting Laptopify inspection"}</strong></div>
               </div>
-              <div className="valuation-disclaimer">This is a provisional estimate, not a final guaranteed offer. Laptopify confirms the condition and final value after physical inspection. You can accept now to start the buyback process, or go back and correct your condition details.</div>
-              <WorkflowActions loading={loading} label="Accept estimate and start buyback" onNext={acceptOffer} back={() => moveTo(3)} />
+              <div className="valuation-disclaimer">This is a provisional estimate based on the details you supplied. Laptopify confirms the final offer after physical inspection.</div>
+              <WorkflowActions loading={loading} label="Continue to purchase offer" onNext={() => moveTo(5)} back={() => moveTo(3)} />
             </div>
           )}
 
-          {step === 5 && (
+          {step === 5 && workflow?.offer_decision === "accepted" && workflow?.purchase && (
             <div className="purchase-confirmation">
               <div className="confirmation-mark">✓</div>
               <span className="workflow-eyebrow">BUYBACK REQUEST RECEIVED</span>
-              <h3>Thanks for choosing Laptopify.</h3>
+              <h3>Thanks for accepting the Laptopify offer.</h3>
               <p>Your acceptance is recorded. Our team will contact you to arrange device collection, complete the physical inspection and confirm payment details.</p>
               <div className="purchase-summary">
                 <div><span>Request reference</span><strong>LP-{String(workflow?.laptop_request?.id || localStorage.getItem("laptop_request_id")).padStart(6, "0")}</strong></div>
@@ -393,6 +492,36 @@ function SellLaptop() {
               </div>
               <div className="workflow-alert success">No payment details are collected on this page. Laptopify will confirm the final amount and payment method with you directly.</div>
               <div className="workflow-actions"><Link to="/contact" className="workflow-button secondary">Contact Laptopify</Link><Link to="/" className="workflow-button">Back to Laptopify home <span>↗</span></Link></div>
+            </div>
+          )}
+
+          {step === 5 && workflow?.offer_decision === "rejected" && (
+            <div className="purchase-confirmation">
+              <span className="workflow-eyebrow">OFFER DECLINED</span>
+              <h3>You declined this buyback offer.</h3>
+              <p>Request LP-{String(workflow?.laptop_request?.id).padStart(6, "0")} is marked as declined. No purchase or payment was created.</p>
+              <div className="purchase-summary"><div><span>Device</span><strong>{workflow?.laptop_request?.brand} {workflow?.laptop_request?.model}</strong></div><div><span>Offer reviewed</span><strong>{formatMoney(estimate)}</strong></div><div><span>Status</span><strong className="status-pill">Declined</strong></div></div>
+              <div className="workflow-actions"><Link to="/contact" className="workflow-button secondary">Contact Laptopify</Link><Link to="/" className="workflow-button">Back to Laptopify home <span>↗</span></Link></div>
+            </div>
+          )}
+
+          {step === 5 && (!workflow?.offer_decision || workflow.offer_decision === "pending") && (
+            <div className="purchase-confirmation offer-review">
+              <span className="workflow-eyebrow">LAPTOPIFY BUYBACK OFFER</span>
+              <h3>Review your offer</h3>
+              <p>Review the details below, then choose whether to accept or decline this provisional offer.</p>
+              <div className="valuation-result"><span>PROVISIONAL OFFER</span><strong>{formatMoney(offerAmount)}</strong><p>Final value is confirmed after Laptopify inspects the physical device.</p></div>
+              <div className="purchase-summary">
+                <div><span>Request reference</span><strong>LP-{String(workflow?.laptop_request?.id).padStart(6, "0")}</strong></div>
+                <div><span>Device</span><strong>{workflow?.laptop_request?.brand} {workflow?.laptop_request?.model}</strong></div>
+                <div><span>Reported condition</span><strong>{workflow?.inspection?.overall_condition || workflow?.laptop_request?.condition}</strong></div>
+                <div><span>Offer status</span><strong className="status-pill">Awaiting your decision</strong></div>
+              </div>
+              <div className="workflow-actions">
+                <button type="button" className="workflow-button secondary" onClick={() => moveTo(4)} disabled={loading}>Back to valuation</button>
+                <button type="button" className="workflow-button secondary" onClick={rejectOffer} disabled={loading}>{loading ? "Saving..." : "Decline offer"}</button>
+                <button type="button" className="workflow-button" onClick={acceptOffer} disabled={loading}>{loading ? "Saving..." : "Accept offer"}<span aria-hidden="true">→</span></button>
+              </div>
             </div>
           )}
         </section>

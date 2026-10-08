@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,7 +29,10 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "local-development-only-change-befor
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DJANGO_DEBUG", "true").lower() in {"1", "true", "yes"}
 
-ALLOWED_HOSTS = [host.strip() for host in os.getenv(
+if not DEBUG and SECRET_KEY == "local-development-only-change-before-deploy":
+    raise ImproperlyConfigured("Set DJANGO_SECRET_KEY to a private random value in production.")
+
+ALLOWED_HOSTS = [host.strip().removeprefix("https://").removeprefix("http://") for host in os.getenv(
     "DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1" if DEBUG else ""
 ).split(",") if host.strip()]
 
@@ -56,9 +60,13 @@ INSTALLED_APPS = [
      'contact',
 ]
 
+if os.getenv("AWS_STORAGE_BUCKET_NAME"):
+    INSTALLED_APPS.append("storages")
+
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -89,24 +97,61 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
-DB_ENGINE = os.getenv(
-    "DB_ENGINE",
-    "django.db.backends.sqlite3" if DEBUG else "django.db.backends.mysql",
-)
-if DB_ENGINE == "django.db.backends.sqlite3":
-    DATABASES = {"default": {"ENGINE": DB_ENGINE, "NAME": os.getenv("DB_NAME", str(BASE_DIR / "db.sqlite3"))}}
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": DB_ENGINE,
-            "NAME": os.getenv("DB_NAME", "laptopify_db"),
-            "USER": os.getenv("DB_USER", "laptopify_user"),
-            "PASSWORD": os.getenv("DB_PASSWORD", ""),
-            "HOST": os.getenv("DB_HOST", "127.0.0.1"),
-            "PORT": os.getenv("DB_PORT", "3306"),
-        }
-    }
+DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL:
+    import dj_database_url
 
+    DATABASES = {"default": dj_database_url.config(
+        default=DATABASE_URL,
+        conn_max_age=600,
+        ssl_require=not DEBUG,
+    )}
+elif not DEBUG:
+    raise ImproperlyConfigured("Set DATABASE_URL to a persistent production database.")
+else:
+    DB_ENGINE = os.getenv("DB_ENGINE", "django.db.backends.sqlite3")
+    if DB_ENGINE == "django.db.backends.sqlite3":
+        DATABASES = {"default": {"ENGINE": DB_ENGINE, "NAME": os.getenv("DB_NAME", str(BASE_DIR / "db.sqlite3"))}}
+    else:
+        DATABASES = {
+            "default": {
+                "ENGINE": DB_ENGINE,
+                "NAME": os.getenv("DB_NAME", "laptopify_db"),
+                "USER": os.getenv("DB_USER", "laptopify_user"),
+                "PASSWORD": os.getenv("DB_PASSWORD", ""),
+                "HOST": os.getenv("DB_HOST", "127.0.0.1"),
+                "PORT": os.getenv("DB_PORT", "3306"),
+            }
+        }
+
+if not DEBUG and not os.getenv("AWS_STORAGE_BUCKET_NAME"):
+    raise ImproperlyConfigured("Set AWS_STORAGE_BUCKET_NAME to persist uploaded KYC documents in production.")
+
+# Render terminates TLS at its proxy. These settings keep Django's HTTPS
+# redirects and secure cookies correct behind that proxy.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STORAGES = {
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+}
+MEDIA_URL = "/media/"
+if os.getenv("AWS_STORAGE_BUCKET_NAME"):
+    AWS_STORAGE_BUCKET_NAME = os.environ["AWS_STORAGE_BUCKET_NAME"]
+    AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME", "ap-south-1")
+    AWS_DEFAULT_ACL = None
+    AWS_QUERYSTRING_AUTH = True
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
+    STORAGES["default"] = {"BACKEND": "storages.backends.s3.S3Storage"}
+else:
+    STORAGES["default"] = {"BACKEND": "django.core.files.storage.FileSystemStorage"}
 
 # Password validation
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
@@ -165,7 +210,11 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "cherishbywedknotcraft@gmail.com"
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
 CONTACT_EMAIL_FROM = os.getenv("CONTACT_EMAIL_FROM", EMAIL_HOST_USER)
 CONTACT_EMAIL_TO = os.getenv("CONTACT_EMAIL_TO", EMAIL_HOST_USER)
-CORS_ALLOWED_ORIGINS = [origin.strip() for origin in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",") if origin.strip()]
+CORS_ALLOWED_ORIGINS = [
+    origin.strip() if "://" in origin else f"https://{origin.strip()}"
+    for origin in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",") if origin.strip()
+]
+CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
 CORS_ALLOW_ALL_ORIGINS = DEBUG and not CORS_ALLOWED_ORIGINS
 AUTH_USER_MODEL = 'accounts.User'
 

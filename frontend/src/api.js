@@ -1,8 +1,10 @@
 import axios from "axios";
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "",
-});
+const configuredApiUrl = import.meta.env.VITE_API_URL || "";
+const apiBaseUrl = configuredApiUrl && !/^https?:\/\//i.test(configuredApiUrl)
+  ? `https://${configuredApiUrl}`
+  : configuredApiUrl;
+const api = axios.create({ baseURL: apiBaseUrl });
 
 let refreshRequest;
 

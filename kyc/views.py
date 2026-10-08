@@ -65,6 +65,15 @@ class KYCSubmitView(APIView):
                     status=status.HTTP_404_NOT_FOUND
                 )
 
+        latest_kyc = KYCDocument.objects.filter(
+            laptop_request=laptop_request, seller=seller
+        ).order_by("-created_at").first()
+        if latest_kyc and latest_kyc.status != "rejected":
+            return Response(
+                {"message": "Your latest KYC submission is already being reviewed or verified."},
+                status=status.HTTP_409_CONFLICT,
+            )
+
         kyc = KYCDocument.objects.create(
             seller=seller,
             laptop_request=laptop_request,

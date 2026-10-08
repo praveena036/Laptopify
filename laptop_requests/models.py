@@ -25,6 +25,12 @@ class LaptopRequest(models.Model):
         ('cancelled', 'Cancelled'),
     )
 
+    OFFER_DECISION_CHOICES = (
+        ("pending", "Pending seller decision"),
+        ("accepted", "Accepted"),
+        ("rejected", "Declined by seller"),
+    )
+
     seller = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -62,6 +68,12 @@ class LaptopRequest(models.Model):
         max_length=40,
         choices=STATUS_CHOICES,
         default='submitted'
+    )
+
+    offer_decision = models.CharField(
+        max_length=20,
+        choices=OFFER_DECISION_CHOICES,
+        default="pending",
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
