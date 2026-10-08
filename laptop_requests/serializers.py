@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.utils import timezone
 from .models import LaptopRequest
 
 
@@ -51,7 +52,7 @@ class LaptopRequestSerializer(serializers.ModelSerializer):
         return value
 
     def validate_purchase_year(self, value):
-        if value < 2000 or value > 2026:
+        if value < 2000 or value > timezone.now().year:
             raise serializers.ValidationError(
                 "Please enter a valid purchase year."
             )

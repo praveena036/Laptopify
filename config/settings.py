@@ -12,21 +12,25 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-$+#xrb*ai5i=ron(ns5jc^h90o8)+wlgglyj(y-7y(@dt$3h_t'
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "local-development-only-change-before-deploy")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DJANGO_DEBUG", "true").lower() in {"1", "true", "yes"}
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [host.strip() for host in os.getenv(
+    "DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1" if DEBUG else ""
+).split(",") if host.strip()]
 
 
 # Application definition
@@ -85,16 +89,23 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'laptopify_db',
-        'USER': 'laptopify_user',
-        'PASSWORD': 'Praveena@0306',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
+DB_ENGINE = os.getenv(
+    "DB_ENGINE",
+    "django.db.backends.sqlite3" if DEBUG else "django.db.backends.mysql",
+)
+if DB_ENGINE == "django.db.backends.sqlite3":
+    DATABASES = {"default": {"ENGINE": DB_ENGINE, "NAME": os.getenv("DB_NAME", str(BASE_DIR / "db.sqlite3"))}}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": DB_ENGINE,
+            "NAME": os.getenv("DB_NAME", "laptopify_db"),
+            "USER": os.getenv("DB_USER", "laptopify_user"),
+            "PASSWORD": os.getenv("DB_PASSWORD", ""),
+            "HOST": os.getenv("DB_HOST", "127.0.0.1"),
+            "PORT": os.getenv("DB_PORT", "3306"),
+        }
     }
-}
 
 
 # Password validation
@@ -136,21 +147,30 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_THROTTLE_RATES': {
+        'contact': '10/hour',
+    },
 }
 
 
-# Email
-# https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
-
+# Contact email credentials are server-side only. Use Resend by default in
+# production; local development can use configured SMTP credentials.
+EMAIL_PROVIDER = os.getenv("EMAIL_PROVIDER", "smtp" if DEBUG else "resend").lower()
+RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-
-EMAIL_HOST_USER = "cherishbywedknotcraft@gmail.com"
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
-
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-CORS_ALLOW_ALL_ORIGINS = True
+EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "true").lower() in {"1", "true", "yes"}
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "cherishbywedknotcraft@gmail.com")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+CONTACT_EMAIL_FROM = os.getenv("CONTACT_EMAIL_FROM", EMAIL_HOST_USER)
+CONTACT_EMAIL_TO = os.getenv("CONTACT_EMAIL_TO", EMAIL_HOST_USER)
+CORS_ALLOWED_ORIGINS = [origin.strip() for origin in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",") if origin.strip()]
+CORS_ALLOW_ALL_ORIGINS = DEBUG and not CORS_ALLOWED_ORIGINS
 AUTH_USER_MODEL = 'accounts.User'
+
+# OTPs are generated locally only when DEBUG is enabled. Production uses Twilio Verify.
+SMS_PROVIDER = os.getenv("SMS_PROVIDER", "console" if DEBUG else "twilio").lower()
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID", "")
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", "")
+TWILIO_VERIFY_SERVICE_SID = os.getenv("TWILIO_VERIFY_SERVICE_SID", "")

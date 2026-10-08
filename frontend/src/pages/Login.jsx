@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../api";
 import "./Login.css";
 
 function Login() {
@@ -14,9 +14,6 @@ function Login() {
 
   const [message, setMessage] = useState("");
   const [generatedOtp, setGeneratedOtp] = useState("");
-
-  // API URL comes from .env
-  const API_URL = import.meta.env.VITE_API_URL;
 
   // =========================
   // SEND OTP
@@ -33,14 +30,12 @@ function Login() {
     try {
       setLoading(true);
 
-      const response = await axios.post(
-        `${API_URL}/api/auth/send-otp/`,
+      const response = await api.post(
+        "/api/auth/send-otp/",
         {
           mobile: mobile,
         }
       );
-
-      console.log("OTP Response:", response.data);
 
       setOtpSent(true);
 
@@ -77,15 +72,13 @@ function Login() {
     try {
       setLoading(true);
 
-      const response = await axios.post(
-        `${API_URL}/api/auth/verify-otp/`,
+      const response = await api.post(
+        "/api/auth/verify-otp/",
         {
           mobile: mobile,
           otp: otp,
         }
       );
-
-      console.log("Verify Response:", response.data);
 
       // =========================
       // SAVE LOGIN INFORMATION
@@ -169,7 +162,7 @@ function Login() {
         </h1>
 
         <p className="login-subtitle">
-          Login using your registered mobile number.
+          Enter your mobile number and we’ll send you a one-time login code.
         </p>
 
         {/* =========================
@@ -218,7 +211,7 @@ function Login() {
           >
             {loading
               ? "Sending OTP..."
-              : "Send OTP"}
+              : "Login"}
 
             <span>
               →

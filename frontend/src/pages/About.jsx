@@ -665,61 +665,7 @@ function About() {
       </section>
 
       {/* FOOTER */}
-      <footer className="about-footer">
-
-        <div className="footer-main">
-
-          <div className="footer-brand">
-            <img
-              src="/src/assets/images/logo.png"
-              alt="Laptopify"
-            />
-
-            <p>
-              Smart Laptop Buyback &
-              <br />
-              Procurement Platform.
-            </p>
-          </div>
-
-          <div className="footer-column">
-            <h4>EXPLORE</h4>
-            <a href="/">Home</a>
-            <a href="/about">About</a>
-            <a href="/how-it-works">How It Works</a>
-            <a href="/laptops">Laptops</a>
-          </div>
-
-          <div className="footer-column">
-            <h4>SELL</h4>
-            <a href="/sell-laptop">Sell Your Laptop</a>
-            <a href="/kyc">KYC Verification</a>
-            <a href="/login">Login</a>
-          </div>
-
-          <div className="footer-column">
-            <h4>PLATFORM</h4>
-            <span>Secure Workflow</span>
-            <span>Professional Inspection</span>
-            <span>Fair Valuation</span>
-            <span>Purchase Tracking</span>
-          </div>
-
-        </div>
-
-        <div className="footer-bottom">
-
-          <span>
-            © 2026 Laptopify. All rights reserved.
-          </span>
-
-          <span>
-            Built for smarter laptop procurement.
-          </span>
-
-        </div>
-
-      </footer>
+      
 
     </main>
   );

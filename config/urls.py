@@ -11,6 +11,10 @@ urlpatterns = [
     # KYC APIs
     path("api/kyc/", include("kyc.urls")),
 
+    # Seller inspection and buyback acceptance APIs
+    path("api/inspections/", include("inspections.urls")),
+    path("api/purchases/", include("purchases.urls")),
+
     # Laptop Request APIs
     path(
         "api/laptop-requests/",

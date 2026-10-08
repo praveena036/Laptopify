@@ -28,6 +28,7 @@ class OTPVerification(models.Model):
     otp = models.CharField(max_length=6)
     created_at = models.DateTimeField(auto_now_add=True)
     is_verified = models.BooleanField(default=False)
+    attempts = models.PositiveSmallIntegerField(default=0)
 
     def __str__(self):
         return f"{self.mobile} - {self.otp}"

@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 
 import "./Home.css";
 
-import logo from "../assets/images/logo.png";
 import heroImage from "../assets/images/neon-laptop.png";
 
 import dell from "../assets/images/Dell-1.png";
@@ -1096,103 +1095,7 @@ function Home() {
           FOOTER
       ===================================================== */}
 
-      <footer className="site-footer">
-
-        <div className="footer-main">
-
-          <div className="footer-brand">
-
-            <img
-              src={logo}
-              alt="Laptopify"
-            />
-
-            <p>
-              Smart Laptop Buyback & Procurement.
-            </p>
-
-            <span>
-              A structured platform for laptop submission,
-              verification, inspection, valuation and purchase.
-            </span>
-
-          </div>
-
-
-          <div className="footer-column">
-
-            <h4>PRODUCT</h4>
-
-            <Link to="/login">
-              Sell Your Laptop
-            </Link>
-
-            <Link to="/how-it-works">
-              How It Works
-            </Link>
-
-            <Link to="/laptops">
-              Laptops
-            </Link>
-
-            <Link to="/about">
-              About Laptopify
-            </Link>
-
-          </div>
-
-
-          <div className="footer-column">
-
-            <h4>PROCESS</h4>
-
-            <span>Submission</span>
-            <span>KYC Verification</span>
-            <span>Inspection</span>
-            <span>Valuation</span>
-            <span>Purchase</span>
-
-          </div>
-
-
-          <div className="footer-column">
-
-            <h4>COMPANY</h4>
-
-            <Link to="/about">
-              About
-            </Link>
-
-            <Link to="/contact">
-              Contact
-            </Link>
-
-            <Link to="/login">
-              Login
-            </Link>
-
-            <Link to="/register">
-              Get Started
-            </Link>
-
-          </div>
-
-        </div>
-
-
-        <div className="footer-bottom">
-
-          <span>
-            © 2026 Laptopify. All rights reserved.
-          </span>
-
-          <span>
-            Laptop Buyback & Procurement Platform
-          </span>
-
-        </div>
-
-      </footer>
+      
 
     </main>
   );

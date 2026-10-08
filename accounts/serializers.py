@@ -1,3 +1,5 @@
+import re
+
 from rest_framework import serializers
 from .models import User, OTPVerification
 
@@ -34,7 +36,32 @@ class RegisterSerializer(serializers.ModelSerializer):
 class SendOTPSerializer(serializers.Serializer):
     mobile = serializers.CharField(max_length=15)
 
+    def validate_mobile(self, value):
+        if not re.fullmatch(r"\+?[\d\s()-]+", value.strip()):
+            raise serializers.ValidationError("Enter a valid 10-digit Indian mobile number.")
+        digits = "".join(character for character in value if character.isdigit())
+        if digits.startswith("91") and len(digits) == 12:
+            digits = digits[2:]
+        if len(digits) != 10 or digits[0] not in "6789":
+            raise serializers.ValidationError("Enter a valid 10-digit Indian mobile number.")
+        return digits
+
 
 class VerifyOTPSerializer(serializers.Serializer):
     mobile = serializers.CharField(max_length=15)
     otp = serializers.CharField(max_length=6, min_length=6)
+
+    def validate_otp(self, value):
+        if not value.isdigit():
+            raise serializers.ValidationError("Enter the 6-digit OTP.")
+        return value
+
+    def validate_mobile(self, value):
+        if not re.fullmatch(r"\+?[\d\s()-]+", value.strip()):
+            raise serializers.ValidationError("Enter a valid 10-digit Indian mobile number.")
+        digits = "".join(character for character in value if character.isdigit())
+        if digits.startswith("91") and len(digits) == 12:
+            digits = digits[2:]
+        if len(digits) != 10 or digits[0] not in "6789":
+            raise serializers.ValidationError("Enter a valid 10-digit Indian mobile number.")
+        return digits

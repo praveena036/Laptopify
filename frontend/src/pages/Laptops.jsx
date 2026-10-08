@@ -633,43 +633,7 @@ function Laptops() {
 
       {/* FOOTER */}
 
-      <footer className="laptops-footer">
-
-        <div className="footer-brand">
-
-          <div className="footer-logo">
-            LAPTOP<span>IFY</span>
-          </div>
-
-          <p>
-            Smart Laptop Buyback & Procurement Platform
-          </p>
-
-        </div>
-
-
-        <div className="footer-links">
-
-          <Link to="/">Home</Link>
-          <Link to="/about">About</Link>
-          <Link to="/how-it-works">How It Works</Link>
-          <Link to="/laptops">Laptops</Link>
-          <Link to="/contact">Contact</Link>
-
-        </div>
-
-
-        <div className="footer-bottom">
-
-          <span>© 2026 Laptopify. All rights reserved.</span>
-
-          <span>
-            Secure • Transparent • Structured
-          </span>
-
-        </div>
-
-      </footer>
+      
 
     </main>
   );

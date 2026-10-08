@@ -1,4 +1,8 @@
-import random
+import secrets
+
+from datetime import timedelta
+from django.conf import settings
+from django.utils import timezone
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -10,6 +14,12 @@ from .serializers import (
     RegisterSerializer,
     SendOTPSerializer,
     VerifyOTPSerializer,
+)
+from .sms import (
+    SMSProviderError,
+    check_verification,
+    is_twilio_enabled,
+    send_verification,
 )
 
 
@@ -43,27 +53,41 @@ class SendOTPView(APIView):
 
         if serializer.is_valid():
             mobile = serializer.validated_data["mobile"]
+            phone_number = f"+91{mobile}"
 
-            otp = str(random.randint(100000, 999999))
+            if is_twilio_enabled():
+                try:
+                    send_verification(phone_number)
+                except SMSProviderError:
+                    return Response(
+                        {"message": "Unable to send the OTP right now. Please try again later."},
+                        status=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    )
+                return Response(
+                    {"message": "OTP sent successfully.", "mobile": mobile},
+                    status=status.HTTP_200_OK,
+                )
 
-            OTPVerification.objects.filter(
-                mobile=mobile,
-                is_verified=False
-            ).delete()
+            if not settings.DEBUG:
+                return Response(
+                    {"message": "SMS delivery is not configured for this deployment."},
+                    status=status.HTTP_503_SERVICE_UNAVAILABLE,
+                )
 
-            OTPVerification.objects.create(
-                mobile=mobile,
-                otp=otp,
-            )
+            latest = OTPVerification.objects.filter(
+                mobile=mobile, is_verified=False
+            ).order_by("-created_at").first()
+            if latest and timezone.now() - latest.created_at < timedelta(seconds=30):
+                return Response(
+                    {"message": "Please wait 30 seconds before requesting another OTP."},
+                    status=status.HTTP_429_TOO_MANY_REQUESTS,
+                )
 
-            # Development testing only.
-            # Real SMS provider will be connected before deployment.
+            OTPVerification.objects.filter(mobile=mobile, is_verified=False).delete()
+            otp = f"{secrets.randbelow(1_000_000):06d}"
+            OTPVerification.objects.create(mobile=mobile, otp=otp)
             return Response(
-                {
-                    "message": "OTP generated successfully.",
-                    "mobile": mobile,
-                    "otp": otp,
-                },
+                {"message": "Development OTP generated.", "mobile": mobile, "otp": otp},
                 status=status.HTTP_200_OK,
             )
 
@@ -82,13 +106,33 @@ class VerifyOTPView(APIView):
             mobile = serializer.validated_data["mobile"]
             otp = serializer.validated_data["otp"]
 
-            verification = OTPVerification.objects.filter(
-                mobile=mobile,
-                otp=otp,
-                is_verified=False
-            ).order_by("-created_at").first()
+            if is_twilio_enabled():
+                try:
+                    is_valid = check_verification(f"+91{mobile}", otp)
+                except SMSProviderError:
+                    return Response(
+                        {"message": "Unable to verify the OTP right now. Please try again."},
+                        status=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    )
+                verification = None
+            else:
+                verification = OTPVerification.objects.filter(
+                    mobile=mobile,
+                    is_verified=False,
+                ).order_by("-created_at").first()
+                is_valid = bool(
+                    verification
+                    and verification.attempts < 5
+                    and timezone.now() - verification.created_at <= timedelta(minutes=5)
+                    and secrets.compare_digest(verification.otp, otp)
+                )
 
-            if not verification:
+            if not is_valid:
+                if verification and not is_twilio_enabled():
+                    verification.attempts += 1
+                    if verification.attempts >= 5:
+                        verification.is_verified = True
+                    verification.save(update_fields=["attempts", "is_verified"])
                 return Response(
                     {
                         "message": "Invalid OTP."
@@ -96,19 +140,22 @@ class VerifyOTPView(APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-            verification.is_verified = True
-            verification.save()
+            if verification:
+                verification.is_verified = True
+                verification.save(update_fields=["is_verified"])
 
             user = User.objects.filter(
                 mobile=mobile
             ).first()
 
             if not user:
-                return Response(
-                    {
-                        "message": "User not found."
-                    },
-                    status=status.HTTP_404_NOT_FOUND,
+                # First-time OTP users are registered as sellers.
+                user = User.objects.create_user(
+                    username=mobile,
+                    mobile=mobile,
+                    password=None,
+                    role="seller",
+                    is_mobile_verified=True,
                 )
 
             user.is_mobile_verified = True

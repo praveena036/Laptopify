@@ -19,6 +19,9 @@ class KYCDocument(models.Model):
         limit_choices_to={"role": "seller"}
     )
 
+    full_name = models.CharField(max_length=150, default="")
+    address = models.TextField(default="")
+
     laptop_request = models.ForeignKey(
         LaptopRequest,
         on_delete=models.CASCADE,

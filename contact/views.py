@@ -1,7 +1,10 @@
 from rest_framework import generics
-from django.conf import settings
-from django.core.mail import send_mail
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
+from django.db import transaction
 
+from .email import ContactEmailError, send_contact_email
 from .models import ContactMessage
 from .serializers import ContactMessageSerializer
 
@@ -9,28 +12,22 @@ from .serializers import ContactMessageSerializer
 class ContactMessageCreateView(generics.CreateAPIView):
     queryset = ContactMessage.objects.all()
     serializer_class = ContactMessageSerializer
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "contact"
 
-    def perform_create(self, serializer):
-        contact = serializer.save()
-
-        subject = f"Laptopify Contact: {contact.subject}"
-
-        message = f"""
-New Contact Message
-
-Name: {contact.name}
-Email: {contact.email}
-Mobile: {contact.mobile}
-Subject: {contact.subject}
-
-Message:
-{contact.message}
-"""
-
-        send_mail(
-            subject,
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            [settings.EMAIL_HOST_USER],
-            fail_silently=False,
-        )
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            # Save only after the email provider accepts the message so a failed
+            # submission doesn't look successful or leave an unsent enquiry.
+            with transaction.atomic():
+                contact = serializer.save()
+                send_contact_email(serializer.validated_data)
+        except ContactEmailError:
+            return Response(
+                {"message": "We couldn't send your message right now. Please try again shortly."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)

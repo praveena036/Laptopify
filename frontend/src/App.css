@@ -155,6 +155,35 @@ a {
   gap: 12px;
 }
 
+.theme-toggle {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  place-items: center;
+  border: 1px solid rgba(137, 164, 207, 0.28);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.035);
+  color: #dce8ff;
+  transition: background 180ms ease, border-color 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.theme-toggle svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.theme-toggle:hover {
+  transform: translateY(-2px);
+  border-color: var(--cyan);
+  background: rgba(17, 217, 255, 0.1);
+}
+
 .login-btn {
   height: 48px;
   padding: 0 23px;

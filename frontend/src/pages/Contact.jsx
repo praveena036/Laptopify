@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import api from "../api";
 import "./Contact.css";
 
 function Contact() {
@@ -12,6 +13,7 @@ function Contact() {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -23,6 +25,7 @@ function Contact() {
     }));
 
     setSubmitted(false);
+    setErrorMessage("");
   };
 
   const handleSubmit = async (e) => {
@@ -30,26 +33,10 @@ function Contact() {
 
     setLoading(true);
     setSubmitted(false);
+    setErrorMessage("");
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/contact/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        console.error("Contact API Error:", data);
-        alert("Message failed. Please check your details.");
-        return;
-      }
+      await api.post("/api/contact/", formData);
 
       setSubmitted(true);
 
@@ -61,8 +48,11 @@ function Contact() {
         message: "",
       });
     } catch (error) {
-      console.error("Contact Error:", error);
-      alert("Unable to send message. Please try again.");
+      const responseMessage = error.response?.data?.message || error.response?.data?.detail;
+      const fallback = error.response
+        ? "We couldn't send your message right now. Please try again shortly."
+        : "We couldn't connect to the contact service. Please try again shortly.";
+      setErrorMessage(responseMessage || fallback);
     } finally {
       setLoading(false);
     }
@@ -138,7 +128,7 @@ function Contact() {
                 <span>EMAIL</span>
 
                 <strong>
-                  support@laptopify.com
+                  cherishbywedknotcraft@gmail.com
                 </strong>
 
                 <p>
@@ -159,7 +149,7 @@ function Contact() {
                 <span>PHONE</span>
 
                 <strong>
-                  +91 90000 00000
+                  9876543210
                 </strong>
 
                 <p>
@@ -364,10 +354,16 @@ function Contact() {
 
             {submitted && (
 
-              <div className="success-message">
+              <div className="success-message" role="status" aria-live="polite">
                 ✓ Your message has been submitted successfully.
               </div>
 
+            )}
+
+            {errorMessage && (
+              <div className="error-message" role="alert" aria-live="assertive">
+                {errorMessage}
+              </div>
             )}
 
           </form>
@@ -591,111 +587,7 @@ function Contact() {
 
       {/* FOOTER */}
 
-      <footer className="contact-footer">
-
-        <div className="contact-footer-main">
-
-          <div className="footer-about">
-
-            <div className="footer-logo">
-              LAPTOP<span>IFY</span>
-            </div>
-
-            <p>
-              Smart Laptop Buyback &
-              Procurement Platform.
-            </p>
-
-            <small>
-              A structured platform for laptop submission,
-              verification, inspection, valuation and purchase.
-            </small>
-
-          </div>
-
-
-          <div className="footer-column">
-
-            <h4>
-              EXPLORE
-            </h4>
-
-            <Link to="/">
-              Home
-            </Link>
-
-            <Link to="/about">
-              About
-            </Link>
-
-            <Link to="/how-it-works">
-              How It Works
-            </Link>
-
-            <Link to="/laptops">
-              Laptops
-            </Link>
-
-          </div>
-
-
-          <div className="footer-column">
-
-            <h4>
-              SELL
-            </h4>
-
-            <Link to="/sell-laptop">
-              Sell Your Laptop
-            </Link>
-
-            <Link to="/kyc">
-              KYC Verification
-            </Link>
-
-            <Link to="/login">
-              Login
-            </Link>
-
-          </div>
-
-
-          <div className="footer-column">
-
-            <h4>
-              CONTACT
-            </h4>
-
-            <span>
-              support@laptopify.com
-            </span>
-
-            <span>
-              +91 90000 00000
-            </span>
-
-            <Link to="/contact">
-              Contact Support
-            </Link>
-
-          </div>
-
-        </div>
-
-
-        <div className="contact-footer-bottom">
-
-          <span>
-            © 2026 Laptopify. All rights reserved.
-          </span>
-
-          <span>
-            Secure • Transparent • Structured
-          </span>
-
-        </div>
-
-      </footer>
+      
 
     </main>
   );

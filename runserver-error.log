@@ -1,0 +1,40 @@
+System check identified some issues:
+
+WARNINGS:
+accounts.OTPVerification: (models.W042) Auto-created primary key used when not defining a primary key type, by default 'django.db.models.AutoField'.
+	HINT: Configure the DEFAULT_AUTO_FIELD setting or the AccountsConfig.default_auto_field attribute to point to a subclass of AutoField, e.g. 'django.db.models.BigAutoField'.
+accounts.User: (models.W042) Auto-created primary key used when not defining a primary key type, by default 'django.db.models.AutoField'.
+	HINT: Configure the DEFAULT_AUTO_FIELD setting or the AccountsConfig.default_auto_field attribute to point to a subclass of AutoField, e.g. 'django.db.models.BigAutoField'.
+sellers.Seller: (models.W042) Auto-created primary key used when not defining a primary key type, by default 'django.db.models.AutoField'.
+	HINT: Configure the DEFAULT_AUTO_FIELD setting or the SellersConfig.default_auto_field attribute to point to a subclass of AutoField, e.g. 'django.db.models.BigAutoField'.
+
+System check identified 3 issues (0 silenced).
+Unauthorized: /api/auth/token/refresh/
+[08/Oct/2026 21:14:48] "POST /api/auth/token/refresh/ HTTP/1.1" 401 54
+[08/Oct/2026 21:14:48,774] - Broken pipe from ('127.0.0.1', 57380)
+[08/Oct/2026 21:15:26] "POST /api/auth/send-otp/ HTTP/1.1" 200 77
+[08/Oct/2026 21:15:35] "POST /api/auth/verify-otp/ HTTP/1.1" 200 588
+[08/Oct/2026 21:16:15] "POST /api/laptop-requests/ HTTP/1.1" 201 403
+[08/Oct/2026 21:16:37] "OPTIONS /api/kyc/submit/ HTTP/1.1" 200 0
+[08/Oct/2026 21:16:37] "POST /api/kyc/submit/ HTTP/1.1" 201 118
+[08/Oct/2026 21:17:03] "OPTIONS /api/inspections/1/ HTTP/1.1" 200 0
+[08/Oct/2026 21:17:03] "POST /api/inspections/1/ HTTP/1.1" 200 550
+[08/Oct/2026 21:17:12] "OPTIONS /api/purchases/1/accept/ HTTP/1.1" 200 0
+[08/Oct/2026 21:17:12] "POST /api/purchases/1/accept/ HTTP/1.1" 201 176
+[08/Oct/2026 21:17:40] "POST /api/contact/ HTTP/1.1" 201 176
+[08/Oct/2026 21:54:01] "OPTIONS /api/laptop-requests/1/workflow/ HTTP/1.1" 200 0
+[08/Oct/2026 21:54:01] "OPTIONS /api/laptop-requests/1/workflow/ HTTP/1.1" 200 0
+Unauthorized: /api/laptop-requests/1/workflow/
+[08/Oct/2026 21:54:01] "GET /api/laptop-requests/1/workflow/ HTTP/1.1" 401 172
+Unauthorized: /api/laptop-requests/1/workflow/
+[08/Oct/2026 21:54:01] "GET /api/laptop-requests/1/workflow/ HTTP/1.1" 401 172
+[08/Oct/2026 21:54:01] "POST /api/auth/token/refresh/ HTTP/1.1" 200 244
+[08/Oct/2026 21:54:01] "GET /api/laptop-requests/1/workflow/ HTTP/1.1" 200 745
+[08/Oct/2026 21:54:01] "GET /api/laptop-requests/1/workflow/ HTTP/1.1" 200 745
+Unauthorized: /api/laptop-requests/1/workflow/
+[08/Oct/2026 22:10:42] "GET /api/laptop-requests/1/workflow/ HTTP/1.1" 401 172
+Unauthorized: /api/laptop-requests/1/workflow/
+[08/Oct/2026 22:10:42] "GET /api/laptop-requests/1/workflow/ HTTP/1.1" 401 172
+[08/Oct/2026 22:10:42] "POST /api/auth/token/refresh/ HTTP/1.1" 200 244
+[08/Oct/2026 22:10:42] "GET /api/laptop-requests/1/workflow/ HTTP/1.1" 200 745
+[08/Oct/2026 22:10:42] "GET /api/laptop-requests/1/workflow/ HTTP/1.1" 200 745
