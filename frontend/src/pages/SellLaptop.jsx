@@ -363,7 +363,7 @@ function SellLaptop() {
         <div className="sell-trust-points" aria-label="Laptopify process benefits">
           <span>Secure KYC</span><span>Clear condition review</span><span>No-obligation estimate</span>
         </div>
-        {demoMode && <div className="demo-mode-notice" role="note"><strong>Free demo environment:</strong> Render may remove uploaded KYC files when the service restarts, and the free database expires after its trial period. Do not upload real identity documents. SMS OTP and contact email need provider credentials.</div>}
+        {demoMode && <div className="demo-mode-notice" role="note"><strong>Free demo environment:</strong> use fictional test details only. Do not submit real phone numbers, addresses, or identity documents. Render may remove uploaded files when the service restarts, and the free database expires after its trial period. SMS OTP and contact email need provider credentials.</div>}
       </section>
 
       <section className="sell-progress" aria-label="Laptopify buyback steps">

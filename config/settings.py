@@ -195,6 +195,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_THROTTLE_RATES': {
         'contact': '10/hour',
+        'demo_login': '20/hour',
     },
 }
 

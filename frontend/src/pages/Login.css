@@ -284,6 +284,40 @@
   font-size: 18px;
 }
 
+.demo-login-box {
+  margin-top: 22px;
+  padding: 15px;
+  border: 1px solid rgba(250, 204, 21, 0.3);
+  border-radius: 13px;
+  background: rgba(250, 204, 21, 0.06);
+}
+
+.demo-login-box p {
+  margin: 0 0 13px;
+  color: #d6c895;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.demo-login-box p strong { color: #ffe28b; }
+
+.demo-login-button {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid rgba(34, 211, 238, 0.35);
+  border-radius: 10px;
+  background: rgba(14, 165, 233, 0.12);
+  color: #a5efff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .2s ease, transform .2s ease;
+}
+
+.demo-login-button:hover:not(:disabled) { background: rgba(14, 165, 233, 0.22); transform: translateY(-1px); }
+.demo-login-button:disabled { opacity: .6; cursor: wait; }
+
 
 /* ================================
    DEVELOPMENT OTP

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
 import "./Login.css";
@@ -14,6 +14,37 @@ function Login() {
 
   const [message, setMessage] = useState("");
   const [generatedOtp, setGeneratedOtp] = useState("");
+  const [demoMode, setDemoMode] = useState(false);
+
+  useEffect(() => {
+    api.get("/api/health/").then(({ data }) => setDemoMode(Boolean(data.demo_mode))).catch(() => {});
+  }, []);
+
+  const saveLoginSession = (data, isDemo = false) => {
+    if (isDemo) localStorage.removeItem("laptop_request_id");
+    localStorage.setItem("user_id", data.user_id);
+    localStorage.setItem("mobile", data.mobile);
+    localStorage.setItem("role", data.role);
+    if (data.access) localStorage.setItem("access_token", data.access);
+    if (data.refresh) localStorage.setItem("refresh_token", data.refresh);
+    if (isDemo) localStorage.setItem("demo_mode_session", "true");
+    else localStorage.removeItem("demo_mode_session");
+  };
+
+  const continueInDemo = async () => {
+    setMessage("");
+    setLoading(true);
+    try {
+      const { data } = await api.post("/api/auth/demo-login/", {});
+      saveLoginSession(data, true);
+      setMessage("Demo account ready. No phone number was verified.");
+      setTimeout(() => navigate("/sell-laptop"), 500);
+    } catch (error) {
+      setMessage(error.response?.data?.message || "Demo access is temporarily unavailable.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // =========================
   // SEND OTP
@@ -84,36 +115,7 @@ function Login() {
       // SAVE LOGIN INFORMATION
       // =========================
 
-      localStorage.setItem(
-        "user_id",
-        response.data.user_id
-      );
-
-      localStorage.setItem(
-        "mobile",
-        response.data.mobile
-      );
-
-      localStorage.setItem(
-        "role",
-        response.data.role
-      );
-
-      // JWT Access Token
-      if (response.data.access) {
-        localStorage.setItem(
-          "access_token",
-          response.data.access
-        );
-      }
-
-      // JWT Refresh Token
-      if (response.data.refresh) {
-        localStorage.setItem(
-          "refresh_token",
-          response.data.refresh
-        );
-      }
+      saveLoginSession(response.data);
 
       setMessage(
         "Mobile number verified successfully."
@@ -217,6 +219,15 @@ function Login() {
               →
             </span>
           </button>
+        )}
+
+        {demoMode && !otpSent && (
+          <div className="demo-login-box">
+            <p><strong>Free demo access</strong> creates a separate temporary account without SMS verification. Use fictional test details only; do not enter real phone numbers or identity documents.</p>
+            <button className="demo-login-button" type="button" onClick={continueInDemo} disabled={loading}>
+              {loading ? "Opening demo..." : "Continue in demo"}
+            </button>
+          </div>
         )}
 
         {/* =========================

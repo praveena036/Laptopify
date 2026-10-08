@@ -17,3 +17,5 @@ The root `render.yaml` creates the Django API and a free Render Postgres databas
 - **Persistent private KYC files:** for a real production deployment, configure a private S3-compatible bucket and `AWS_STORAGE_BUCKET_NAME`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_S3_REGION_NAME`. Render Free's filesystem does not persist uploads.
 
 The database can expire and be deleted on the free plan; back up anything you need. For production, turn off `DEMO_MODE`, use a persistent paid database and private object storage, and add the real SMS and email providers. Keep all provider credentials in Render, never in Vite or Git.
+
+With `DEMO_MODE=true`, the login page offers **Continue in demo**. It creates a separate synthetic seller for each visit and does not verify a phone number. This allows visitors to try the workflow without sharing one demo account. Demo submissions and KYC review are not a real identity or purchase verification process.

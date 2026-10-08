@@ -7,6 +7,8 @@ from django.utils import timezone
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import AllowAny
+from rest_framework.throttling import AnonRateThrottle
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User, OTPVerification
@@ -21,6 +23,10 @@ from .sms import (
     is_twilio_enabled,
     send_verification,
 )
+
+
+class DemoLoginThrottle(AnonRateThrottle):
+    scope = "demo_login"
 
 
 class RegisterView(APIView):
@@ -179,4 +185,42 @@ class VerifyOTPView(APIView):
         return Response(
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
+class DemoLoginView(APIView):
+    permission_classes = [AllowAny]
+    throttle_classes = [DemoLoginThrottle]
+
+    def post(self, request):
+        if not settings.DEMO_MODE:
+            return Response(
+                {"message": "Demo login is disabled."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        # Each browser gets a new synthetic seller, so demo visitors cannot see
+        # another visitor's requests. No phone verification is implied.
+        demo_id = secrets.token_hex(5)
+        username = f"demo_{demo_id}"
+        mobile = f"demo-{demo_id}"
+        user = User.objects.create_user(
+            username=username,
+            mobile=mobile,
+            password=secrets.token_urlsafe(32),
+            role="seller",
+            is_mobile_verified=False,
+        )
+        refresh = RefreshToken.for_user(user)
+        return Response(
+            {
+                "message": "Demo account created. This account has no verified mobile number.",
+                "user_id": user.id,
+                "mobile": mobile,
+                "role": user.role,
+                "demo_mode": True,
+                "access": str(refresh.access_token),
+                "refresh": str(refresh),
+            },
+            status=status.HTTP_201_CREATED,
         )
